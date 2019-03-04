@@ -1,0 +1,90 @@
+import matplotlib.pyplot as plt
+from numpy import median
+from numpy import mean
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import SGDRegressor
+from sklearn.linear_model import Lasso
+from sklearn.linear_model import ElasticNet
+from sklearn.model_selection import train_test_split
+from sklearn.model_selection import cross_val_score
+from sklearn import svm
+from sklearn import metrics
+import numpy as np
+import pandas as pd
+from scipy.stats import ttest_ind
+data=pd.read_csv("Good Weka Data.csv")
+data=data.drop(["state","year","lawtotal","Crude Rate","inverse law total","Median Household Income in Dollars"],1)
+model1=RandomForestRegressor()
+model2=LinearRegression(normalize=True)
+model3=svm.SVR(kernel='linear')
+model4=svm.SVR(kernel='rbf')
+model5=SGDRegressor()
+model6=GradientBoostingRegressor()
+model7=ElasticNet()
+y=data["Age-Adjusted Rate"]
+X=data.drop("Age-Adjusted Rate",1)
+datafour=data
+X1=datafour.drop("Age-Adjusted Rate",1)
+data.head()
+
+def function_with_graph(model,law,iterations):
+    onemeans=[]
+    zeromeans=[]
+    for i in range(0,iterations):
+        X1_train, X1_test, y2_train, y2_test = train_test_split(X1, y, test_size=0.33, random_state=i)
+        modeltest = model.fit(X1_train, y2_train)
+        X1_test[law] = 1
+        predicted1 = modeltest.predict(X1_test)
+        onemeans.append(mean(predicted1))
+    for i in range(0,iterations):
+        X1_train, X1_test, y2_train, y2_test = train_test_split(X1, y, test_size=0.33, random_state=i)
+        modeltest = model.fit(X1_train, y2_train)
+        X1_test[law] = 0
+        predicted2 = modeltest.predict(X1_test)
+        zeromeans.append(mean(predicted2))
+    print(mean(onemeans))
+    print(mean(zeromeans))
+    t, p = ttest_ind(onemeans, zeromeans)
+    print(p)
+    mean1 = mean(onemeans)
+    mean0 = mean(zeromeans)
+    sd1 = np.std(onemeans)/(iterations**0.5)
+    sd0 = np.std(zeromeans)/(iterations**0.5)
+    x = np.linspace(mean(onemeans)-3*sd1, mean(zeromeans+3*sd0), 100)
+    Y = norm.pdf(x, loc =mean1, scale = sd1)
+    Y1 = norm.pdf(x, loc = mean0, scale = sd0)
+    pylab.plot(x, Y)
+    pylab.plot(x, Y1)
+
+def function(model,law,iterations):
+    onemeans=[]
+    zeromeans=[]
+    for i in range(0,iterations):
+        X1_train, X1_test, y2_train, y2_test = train_test_split(X1, y, test_size=0.33, random_state=i)
+        modeltest = model.fit(X1_train, y2_train)
+        X1_test[law] = 1
+        predicted1 = modeltest.predict(X1_test)
+        onemeans.append(mean(predicted1))
+    for i in range(0,iterations):
+        X1_train, X1_test, y2_train, y2_test = train_test_split(X1, y, test_size=0.33, random_state=i)
+        modeltest = model.fit(X1_train, y2_train)
+        X1_test[law] = 0
+        predicted2 = modeltest.predict(X1_test)
+        zeromeans.append(mean(predicted2))
+    print(mean(onemeans))
+    print(mean(zeromeans))
+    t, p = ttest_ind(onemeans, zeromeans)
+    print(p)
+    p_values.append(p)
+
+def metafunction(law,iterations):
+    useful_model_list=[model1,model3,model4,model5,model6,model7]
+    p_values=[]
+    for i in useful_model_list:
+        function(i,law,iterations)
+    print(p_values)
+
+
